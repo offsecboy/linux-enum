@@ -35,23 +35,6 @@ For local use:
 2. Open `index.html` in any modern web browser
 3. No server or build process required
 
-## Project Structure
-
-```
-linux-enum/
-├── index.html          # Main cheatsheet file
-├── assets/            # CSS and image assets
-├── LICENSE           # License file
-└── README.md         # This file
-```
-
-## Development
-
-This is a static HTML/CSS project. To modify:
-1. Edit `index.html` for content changes
-2. Modify CSS in the `<style>` section
-3. Test by opening the file locally in a browser
-
 ## Contributing
 
 Contributions are welcome! Please ensure:
