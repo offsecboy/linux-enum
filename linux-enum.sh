@@ -2,27 +2,79 @@
 
 # ============================================
 # Linux Enumeration Script
-# Version: 1.0
+# Version: 2.0
 # Author: OffSecBoy
 # Description: Comprehensive Linux enumeration script
-#              that adapts to user privileges
+#              that adapts to user privileges with user choice
 # ============================================
 
-# Color codes for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Ask user if they want to run as root
+ask_for_root() {
+    echo "[?] Do you want to run privileged commands? (y/n): "
+    read -r response
+    
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "[*] Attempting to gain root privileges..."
+        
+        # Try sudo first
+        if command -v sudo >/dev/null 2>&1; then
+            echo "[!] Please enter your password for sudo:"
+            if sudo -v; then
+                echo "[+] Sudo authentication successful"
+                return 0
+            else
+                echo "[-] Sudo authentication failed"
+            fi
+        fi
+        
+        # Try su as fallback
+        echo "[!] Trying su... Please enter root password:"
+        if su -c "echo 'Root access test'" root; then
+            echo "[+] Root authentication successful"
+            return 0
+        else
+            echo "[-] Root authentication failed"
+            return 1
+        fi
+    else
+        echo "[*] Continuing without root privileges"
+        return 1
+    fi
+}
 
-# Check if running as root
+# Function to run privileged commands
+run_privileged() {
+    local cmd="$1"
+    
+    if [[ "$HAS_ROOT" == "true" ]]; then
+        if command -v sudo >/dev/null 2>&1; then
+            sudo bash -c "$cmd"
+        else
+            su -c "$cmd" root
+        fi
+    else
+        echo "[-] Command requires root privileges (skipped)"
+        return 1
+    fi
+}
+
+# Check if running as root initially
 if [[ $EUID -eq 0 ]]; then
     IS_ROOT=true
-    echo -e "${GREEN}[+] Running with root privileges${NC}"
+    HAS_ROOT=true
+    echo "[+] Running with root privileges"
 else
     IS_ROOT=false
-    echo -e "${YELLOW}[!] Running without root privileges${NC}"
-    echo -e "${YELLOW}[!] Some commands will be skipped or modified${NC}"
+    
+    # Ask user if they want root access
+    if ask_for_root; then
+        HAS_ROOT=true
+        echo "[+] Running with root privileges (via sudo/su)"
+    else
+        HAS_ROOT=false
+        echo "[!] Running without root privileges"
+        echo "[!] Some commands will be skipped or modified"
+    fi
 fi
 
 # Output file
@@ -35,26 +87,36 @@ run_cmd() {
     local cmd="$1"
     local description="$2"
     local requires_root="${3:-false}"
+    local output=""
     
-    echo -e "\n${BLUE}[*] $description${NC}"
-    echo -e "\n[*] $description" >> $OUTPUT_FILE
+    echo ""
+    echo "[*] $description"
+    echo "" >> $OUTPUT_FILE
+    echo "[*] $description" >> $OUTPUT_FILE
     echo "Command: $cmd" >> $OUTPUT_FILE
     echo "--------------------------------------------------" >> $OUTPUT_FILE
     
-    if [[ "$requires_root" == "true" && "$IS_ROOT" == "false" ]]; then
-        echo -e "${YELLOW}[-] Skipped (requires root)${NC}"
+    if [[ "$requires_root" == "true" && "$HAS_ROOT" == "false" ]]; then
+        echo "[-] Skipped (requires root)"
         echo "Skipped (requires root privileges)" >> $OUTPUT_FILE
         return 1
     fi
     
-    # Execute command with timeout
-    timeout 10 bash -c "$cmd" 2>/dev/null >> $OUTPUT_FILE
+    # Execute command
+    if [[ "$requires_root" == "true" && "$HAS_ROOT" == "true" && "$IS_ROOT" == "false" ]]; then
+        # User is not root but has root access via sudo/su
+        output=$(run_privileged "$cmd" 2>/dev/null)
+        echo "$output" >> $OUTPUT_FILE
+    else
+        # Run normally
+        timeout 10 bash -c "$cmd" >> $OUTPUT_FILE 2>&1
+    fi
     
     if [ $? -eq 124 ]; then
-        echo -e "${YELLOW}[-] Command timed out${NC}"
+        echo "[-] Command timed out"
         echo "Command timed out after 10 seconds" >> $OUTPUT_FILE
     else
-        echo -e "${GREEN}[+] Executed${NC}"
+        echo "[+] Executed"
     fi
     
     echo "" >> $OUTPUT_FILE
@@ -62,14 +124,16 @@ run_cmd() {
 
 # Function to check if command exists
 command_exists() {
-    command -v $1 >/dev/null 2>&1
+    command -v "$1" >/dev/null 2>&1
 }
 
 # ============================================
 # SYSTEM INFORMATION
 # ============================================
-echo -e "\n${GREEN}=== SYSTEM INFORMATION ===${NC}"
-echo -e "\n=== SYSTEM INFORMATION ===" >> $OUTPUT_FILE
+echo ""
+echo "=== SYSTEM INFORMATION ==="
+echo "" >> $OUTPUT_FILE
+echo "=== SYSTEM INFORMATION ===" >> $OUTPUT_FILE
 
 run_cmd "uname -a" "System kernel and architecture information" "false"
 run_cmd "cat /etc/issue 2>/dev/null || echo 'Not available'" "Distribution name and version" "false"
@@ -85,15 +149,13 @@ run_cmd "echo \$PATH" "PATH environment variable" "false"
 # ============================================
 # HARDWARE INFORMATION
 # ============================================
-echo -e "\n${GREEN}=== HARDWARE INFORMATION ===${NC}"
-echo -e "\n=== HARDWARE INFORMATION ===" >> $OUTPUT_FILE
+echo ""
+echo "=== HARDWARE INFORMATION ==="
+echo "" >> $OUTPUT_FILE
+echo "=== HARDWARE INFORMATION ===" >> $OUTPUT_FILE
 
 if command_exists "lscpu"; then
     run_cmd "lscpu" "CPU architecture information" "false"
-fi
-
-if command_exists "lsmem"; then
-    run_cmd "lsmem" "Memory information" "true"
 fi
 
 run_cmd "free -h" "Memory usage in human readable format" "false"
@@ -109,18 +171,16 @@ fi
 # ============================================
 # USER & GROUP INFORMATION
 # ============================================
-echo -e "\n${GREEN}=== USER & GROUP INFORMATION ===${NC}"
-echo -e "\n=== USER & GROUP INFORMATION ===" >> $OUTPUT_FILE
+echo ""
+echo "=== USER & GROUP INFORMATION ==="
+echo "" >> $OUTPUT_FILE
+echo "=== USER & GROUP INFORMATION ===" >> $OUTPUT_FILE
 
 run_cmd "id" "Current user ID and group information" "false"
 run_cmd "whoami" "Current username" "false"
 
 # Sudo privileges check
-if command_exists "sudo"; then
-    run_cmd "sudo -l 2>/dev/null || echo 'No sudo privileges or password required'" "Sudo privileges for current user" "false"
-else
-    echo "sudo not available" >> $OUTPUT_FILE
-fi
+run_cmd "sudo -l 2>/dev/null || echo 'No sudo privileges or password required'" "Sudo privileges for current user" "false"
 
 # User information
 run_cmd "cat /etc/passwd" "All system users" "false"
@@ -139,8 +199,10 @@ run_cmd "w" "Logged in users and their processes" "false"
 # ============================================
 # PROCESS INFORMATION
 # ============================================
-echo -e "\n${GREEN}=== PROCESS INFORMATION ===${NC}"
-echo -e "\n=== PROCESS INFORMATION ===" >> $OUTPUT_FILE
+echo ""
+echo "=== PROCESS INFORMATION ==="
+echo "" >> $OUTPUT_FILE
+echo "=== PROCESS INFORMATION ===" >> $OUTPUT_FILE
 
 run_cmd "ps aux" "All running processes" "false"
 run_cmd "ps -ef" "Alternative process listing" "false"
@@ -153,8 +215,10 @@ fi
 # ============================================
 # NETWORK INFORMATION
 # ============================================
-echo -e "\n${GREEN}=== NETWORK INFORMATION ===${NC}"
-echo -e "\n=== NETWORK INFORMATION ===" >> $OUTPUT_FILE
+echo ""
+echo "=== NETWORK INFORMATION ==="
+echo "" >> $OUTPUT_FILE
+echo "=== NETWORK INFORMATION ===" >> $OUTPUT_FILE
 
 # Network interfaces
 if command_exists "ifconfig"; then
@@ -181,8 +245,10 @@ run_cmd "cat /etc/hosts" "Local hosts file" "false"
 # ============================================
 # FILE SYSTEM INFORMATION
 # ============================================
-echo -e "\n${GREEN}=== FILE SYSTEM INFORMATION ===${NC}"
-echo -e "\n=== FILE SYSTEM INFORMATION ===" >> $OUTPUT_FILE
+echo ""
+echo "=== FILE SYSTEM INFORMATION ==="
+echo "" >> $OUTPUT_FILE
+echo "=== FILE SYSTEM INFORMATION ===" >> $OUTPUT_FILE
 
 # Mount information
 run_cmd "mount" "Mounted filesystems" "false"
@@ -190,10 +256,9 @@ run_cmd "df -h" "Disk usage" "false"
 run_cmd "cat /etc/fstab 2>/dev/null || echo 'fstab not accessible'" "Filesystem table" "true"
 
 # Special permission files (adjusted for non-root)
-if [[ "$IS_ROOT" == "true" ]]; then
+if [[ "$HAS_ROOT" == "true" ]]; then
     run_cmd "find / -perm -u=s -type f 2>/dev/null | head -50" "SUID binaries" "true"
     run_cmd "find / -perm -g=s -type f 2>/dev/null | head -50" "SGID binaries" "true"
-    run_cmd "getcap -r / 2>/dev/null | head -50" "Files with capabilities" "true"
 else
     run_cmd "find /home -perm -u=s -type f 2>/dev/null 2>/dev/null | head -30" "SUID binaries in /home" "false"
     run_cmd "find /tmp /var/tmp -perm -o+w -type f 2>/dev/null | head -30" "World-writable files in temp directories" "false"
@@ -207,26 +272,26 @@ run_cmd "find /tmp /var/tmp -type f -mmin -60 2>/dev/null | head -20" "Recent fi
 # ============================================
 # CREDENTIALS & SECRETS
 # ============================================
-echo -e "\n${GREEN}=== CREDENTIALS & SECRETS ===${NC}"
-echo -e "\n=== CREDENTIALS & SECRETS ===" >> $OUTPUT_FILE
+echo ""
+echo "=== CREDENTIALS & SECRETS ==="
+echo "" >> $OUTPUT_FILE
+echo "=== CREDENTIALS & SECRETS ===" >> $OUTPUT_FILE
 
 # SSH keys
 run_cmd "find /home -name 'id_rsa' -o -name 'id_dsa' -o -name '*.pem' 2>/dev/null" "SSH private keys in /home" "false"
 run_cmd "ls -la ~/.ssh/ 2>/dev/null || echo 'No .ssh directory'" "Current user SSH directory" "false"
 
-# Configuration files with passwords
-run_cmd "find /home -name '*.conf' -o -name '*.cfg' -o -name '*.ini' 2>/dev/null | xargs grep -l -i 'pass\|pwd\|password' 2>/dev/null | head -10" "Config files with password mentions" "false"
-
 # History files
 run_cmd "cat ~/.bash_history 2>/dev/null | tail -20 || echo 'No bash history'" "Bash history" "false"
 run_cmd "cat ~/.zsh_history 2>/dev/null | tail -20 2>/dev/null || echo 'No zsh history'" "Zsh history" "false"
-run_cmd "history" "Current session history" "false"
 
 # ============================================
 # SERVICE INFORMATION
 # ============================================
-echo -e "\n${GREEN}=== SERVICE INFORMATION ===${NC}"
-echo -e "\n=== SERVICE INFORMATION ===" >> $OUTPUT_FILE
+echo ""
+echo "=== SERVICE INFORMATION ==="
+echo "" >> $OUTPUT_FILE
+echo "=== SERVICE INFORMATION ===" >> $OUTPUT_FILE
 
 # Service information
 if command_exists "systemctl"; then
@@ -241,51 +306,40 @@ run_cmd "ls -la /etc/cron* 2>/dev/null || echo 'Cannot access cron directories'"
 run_cmd "cat /etc/crontab 2>/dev/null || echo 'crontab not accessible'" "System crontab" "true"
 
 # ============================================
-# PRIVILEGE ESCALATION CHECKS
-# ============================================
-echo -e "\n${GREEN}=== PRIVILEGE ESCALATION CHECKS ===${NC}"
-echo -e "\n=== PRIVILEGE ESCALATION CHECKS ===" >> $OUTPUT_FILE
-
-# Sudo version
-if command_exists "sudo"; then
-    run_cmd "sudo -V 2>/dev/null | head -5" "Sudo version" "false"
-fi
-
-# Package information
-if command_exists "dpkg"; then
-    run_cmd "dpkg -l 2>/dev/null | grep -E '(sudo|openssl|ssh)' | head -10" "Security-related packages (dpkg)" "false"
-elif command_exists "rpm"; then
-    run_cmd "rpm -qa 2>/dev/null | grep -E '(sudo|openssl|ssh)' | head -10" "Security-related packages (rpm)" "false"
-fi
-
-# Kernel information for exploit research
-run_cmd "uname -a | grep -o -E '(Ubuntu|Debian|CentOS|Red Hat|Fedora)' 2>/dev/null || echo 'Distribution not identified'" "Distribution identification" "false"
-
-# ============================================
 # QUICK WINS - PRIORITY CHECKS
 # ============================================
-echo -e "\n${GREEN}=== QUICK WINS - PRIORITY CHECKS ===${NC}"
-echo -e "\n=== QUICK WINS - PRIORITY CHECKS ===" >> $OUTPUT_FILE
+echo ""
+echo "=== QUICK WINS - PRIORITY CHECKS ==="
+echo "" >> $OUTPUT_FILE
+echo "=== QUICK WINS - PRIORITY CHECKS ===" >> $OUTPUT_FILE
 
-echo -e "\n${YELLOW}[!] Running Quick Wins checks...${NC}"
+echo ""
+echo "[!] Running Quick Wins checks..."
 
 # 1. Sudo privileges (most important)
-echo -e "\n${BLUE}[*] 1. Checking sudo privileges...${NC}"
+echo ""
+echo "[*] 1. Checking sudo privileges..."
 if command_exists "sudo"; then
     sudo -l 2>/dev/null
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}[!] POSSIBLE PRIVILEGE ESCALATION: User has sudo privileges${NC}"
+        echo "[!] POSSIBLE PRIVILEGE ESCALATION: User has sudo privileges"
         echo "POSSIBLE PRIVILEGE ESCALATION: User has sudo privileges" >> $OUTPUT_FILE
     else
-        echo -e "[-] No sudo privileges found"
+        echo "[-] No sudo privileges found"
     fi
 fi
 
 # 2. SUID binaries
-echo -e "\n${BLUE}[*] 2. Checking for SUID binaries...${NC}"
-if [[ "$IS_ROOT" == "true" ]]; then
-    find / -perm -u=s -type f 2>/dev/null | head -20
-    suid_count=$(find / -perm -u=s -type f 2>/dev/null | wc -l)
+echo ""
+echo "[*] 2. Checking for SUID binaries..."
+if [[ "$HAS_ROOT" == "true" ]]; then
+    if [[ "$IS_ROOT" == "true" ]]; then
+        find / -perm -u=s -type f 2>/dev/null | head -20
+        suid_count=$(find / -perm -u=s -type f 2>/dev/null | wc -l)
+    else
+        run_privileged "find / -perm -u=s -type f 2>/dev/null | head -20"
+        suid_count=$(run_privileged "find / -perm -u=s -type f 2>/dev/null | wc -l")
+    fi
     echo "Found $suid_count SUID binaries" >> $OUTPUT_FILE
 else
     find /home -perm -u=s -type f 2>/dev/null 2>/dev/null | head -10
@@ -294,65 +348,57 @@ else
 fi
 
 # 3. World-writable files
-echo -e "\n${BLUE}[*] 3. Checking for world-writable files...${NC}"
+echo ""
+echo "[*] 3. Checking for world-writable files..."
 find /tmp /var/tmp -perm -o+w -type f 2>/dev/null | head -10
 ww_count=$(find /tmp /var/tmp -perm -o+w -type f 2>/dev/null | wc -l)
 echo "Found $ww_count world-writable files in temp directories" >> $OUTPUT_FILE
 
 # 4. Cron jobs
-echo -e "\n${BLUE}[*] 4. Checking cron jobs...${NC}"
+echo ""
+echo "[*] 4. Checking cron jobs..."
 crontab -l 2>/dev/null
-ls -la /etc/cron* 2>/dev/null
-
-# ============================================
-# COMPREHENSIVE ONE-LINER
-# ============================================
-echo -e "\n${GREEN}=== COMPREHENSIVE ENUMERATION ONE-LINER ===${NC}"
-echo -e "\n=== COMPREHENSIVE ENUMERATION ONE-LINER ===" >> $OUTPUT_FILE
-
-one_liner() {
-    echo "===== $(date) ====="
-    echo "===== SYSTEM ====="
-    uname -a
-    echo "===== USER ====="
-    id
-    echo "===== SUDO ====="
-    sudo -l 2>/dev/null || echo "No sudo access"
-    echo "===== NETWORK ====="
-    ip addr 2>/dev/null || ifconfig 2>/dev/null || echo "No network tools"
-    echo "===== PROCESSES ====="
-    ps aux 2>/dev/null | head -20
-}
-
-run_cmd "one_liner" "Comprehensive enumeration one-liner" "false"
+if [[ "$HAS_ROOT" == "true" ]]; then
+    if [[ "$IS_ROOT" == "true" ]]; then
+        ls -la /etc/cron* 2>/dev/null
+    else
+        run_privileged "ls -la /etc/cron* 2>/dev/null"
+    fi
+fi
 
 # ============================================
 # FINAL SUMMARY
 # ============================================
-echo -e "\n${GREEN}=== ENUMERATION COMPLETE ===${NC}"
-echo -e "\n=== ENUMERATION COMPLETE ===" >> $OUTPUT_FILE
+echo ""
+echo "=== ENUMERATION COMPLETE ==="
+echo "" >> $OUTPUT_FILE
+echo "=== ENUMERATION COMPLETE ===" >> $OUTPUT_FILE
 
-echo -e "\n${GREEN}[+] Report saved to: $OUTPUT_FILE${NC}"
-echo -e "\n${YELLOW}[!] Summary:${NC}"
-echo "  - Commands executed: $(grep -c '\[*\] ' $OUTPUT_FILE)"
-echo "  - Root privileges: $IS_ROOT"
+echo ""
+echo "[+] Report saved to: $OUTPUT_FILE"
+echo ""
+echo "[!] Summary:"
+echo "  - Root privileges: $HAS_ROOT"
 echo "  - File size: $(du -h $OUTPUT_FILE | cut -f1)"
 
-if [[ "$IS_ROOT" == "false" ]]; then
-    echo -e "\n${YELLOW}[!] Note: Run with 'sudo' or as root for complete enumeration${NC}"
+if [[ "$HAS_ROOT" == "false" ]]; then
+    echo ""
+    echo "[!] Note: Some commands were skipped due to lack of root privileges"
     echo "Note: Some commands were skipped due to lack of root privileges" >> $OUTPUT_FILE
 fi
 
-echo -e "\n${BLUE}[*] Next steps:${NC}"
+echo ""
+echo "[*] Next steps:"
 echo "  1. Review $OUTPUT_FILE for findings"
 echo "  2. Check 'Quick Wins' section for privilege escalation vectors"
 echo "  3. Look for misconfigurations in sudo, SUID binaries, and cron jobs"
 
-echo -e "\n${YELLOW}[!] Disclaimer:${NC}"
+echo ""
+echo "[!] Disclaimer:"
 echo "  This tool is for authorized security assessments only."
 echo "  Always ensure you have proper authorization before use."
 
-# Clean up temporary files
+# Clean up
 rm -f /tmp/enum_*.tmp 2>/dev/null
 
 exit 0
