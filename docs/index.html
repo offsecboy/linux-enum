@@ -1,1 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Linux Enumeration Commands Reference</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #f8f9fa;
+            --dark-bg: #2c3e50;
+            --text-dark: #333;
+            --text-light: #fff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--light-bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #1a252f);
+            color: var(--text-light);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .quick-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .nav-pill:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .content-wrapper {
+            display: flex;
+            margin: 2rem 0;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            flex: 0 0 250px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .toc h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc a {
+            color: var(--text-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-left: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .toc a:hover {
+            color: var(--secondary-color);
+            border-left-color: var(--secondary-color);
+            padding-left: 10px;
+        }
+
+        .toc a i {
+            margin-right: 8px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        /* Search */
+        .search-box {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 16px 12px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-icon {
+            background: var(--secondary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-ctf {
+            background-color: #fef3cd;
+            color: #856404;
+        }
+
+        .badge-pentest {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-admin {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Command Items */
+        .command-group {
+            margin-bottom: 2rem;
+        }
+
+        .group-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .command-item {
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .command-item:hover {
+            border-color: var(--secondary-color);
+            background: #f0f7ff;
+        }
+
+        .command {
+            font-family: 'Courier New', Courier, monospace;
+            background: var(--dark-bg);
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .explanation {
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding-left: 1rem;
+            border-left: 3px solid #ddd;
+        }
+
+        .explanation strong {
+            color: var(--primary-color);
+        }
+
+        /* Tags */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #eef2f7;
+            color: var(--primary-color);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Quick Tips */
+        .quick-tips {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .quick-tips h3 {
+            color: var(--warning-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .quick-tips h3 i {
+            margin-right: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-bg);
+            color: var(--text-light);
+            padding: 3rem 0 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-section a {
+            color: #ddd;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-section a:hover {
+            color: var(--secondary-color);
+            padding-left: 5px;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: static;
+                flex: none;
+            }
+            
+            .quick-nav {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .section-card {
+                padding: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .search-box, .quick-nav, footer {
+                display: none;
+            }
+            
+            .section-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+            
+            .command {
+                background: #f5f5f5;
+                color: #000;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --light-bg: #1a1a1a;
+                --text-dark: #e0e0e0;
+                --border-color: #444;
+            }
+            
+            .section-card, .toc, .search-box {
+                background: #2a2a2a;
+                color: #e0e0e0;
+            }
+            
+            .command-item {
+                background: #222;
+            }
+            
+            .explanation {
+                color: #ccc;
+            }
+            
+            .toc a {
+                color: #e0e0e0;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Copy button */
+        .copy-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .copy-btn.copied {
+            background: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-terminal"></i>
+            </div>
+            <h1>Complete Linux Enumeration Commands Reference</h1>
+            <p class="subtitle">Professional guide for penetration testers, CTF players, and system administrators. Categorized, searchable, and comprehensive.</p>
+            
+            <div class="quick-nav">
+                <a href="#system-info" class="nav-pill"><i class="fas fa-desktop"></i> System Info</a>
+                <a href="#user-group" class="nav-pill"><i class="fas fa-users"></i> Users & Groups</a>
+                <a href="#network" class="nav-pill"><i class="fas fa-network-wired"></i> Network</a>
+                <a href="#filesystem" class="nav-pill"><i class="fas fa-folder"></i> File System</a>
+                <a href="#privilege" class="nav-pill"><i class="fas fa-shield-alt"></i> Privilege Escalation</a>
+                <a href="#containers" class="nav-pill"><i class="fas fa-box"></i> Containers</a>
+                <a href="#automated" class="nav-pill"><i class="fas fa-robot"></i> Automated Tools</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content-wrapper">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="search-box">
+                    <h3><i class="fas fa-search"></i> Search Commands</h3>
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search for commands or keywords...">
+                    </div>
+                    <div id="searchResults" style="margin-top: 10px; display: none;"></div>
+                </div>
+                
+                <div class="toc">
+                    <h3><i class="fas fa-list"></i> Table of Contents</h3>
+                    <ul>
+                        <li><a href="#system-info"><i class="fas fa-desktop"></i> System Information</a></li>
+                        <li><a href="#hardware"><i class="fas fa-microchip"></i> Hardware Enumeration</a></li>
+                        <li><a href="#user-group"><i class="fas fa-users"></i> User & Group Enumeration</a></li>
+                        <li><a href="#process"><i class="fas fa-tasks"></i> Process Enumeration</a></li>
+                        <li><a href="#network"><i class="fas fa-network-wired"></i> Network Information</a></li>
+                        <li><a href="#filesystem"><i class="fas fa-folder"></i> File System Enumeration</a></li>
+                        <li><a href="#credentials"><i class="fas fa-key"></i> Credentials & Secrets</a></li>
+                        <li><a href="#services"><i class="fas fa-server"></i> Service Enumeration</a></li>
+                        <li><a href="#privilege"><i class="fas fa-shield-alt"></i> Privilege Escalation</a></li>
+                        <li><a href="#applications"><i class="fas fa-window-maximize"></i> Application Specific</a></li>
+                        <li><a href="#containers"><i class="fas fa-box"></i> Container/Docker</a></li>
+                        <li><a href="#automated"><i class="fas fa-robot"></i> Automated Tools</a></li>
+                        <li><a href="#logs"><i class="fas fa-clipboard-list"></i> History & Logs</a></li>
+                        <li><a href="#misc"><i class="fas fa-ellipsis-h"></i> Miscellaneous</a></li>
+                    </ul>
+                </div>
+                
+                <div class="toc">
+                    <h3><i class="fas fa-bullseye"></i> Quick Links</h3>
+                    <ul>
+                        <li><a href="#quick-wins"><i class="fas fa-bolt"></i> Quick Wins</a></li>
+                        <li><a href="#one-liners"><i class="fas fa-code"></i> One-Liners</a></li>
+                        <li><a href="#tips"><i class="fas fa-lightbulb"></i> Tips & Tricks</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- System Information -->
+                <section id="system-info" class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div>
+                            <h2 class="section-title">System Information</h2>
+                            <div class="badge-container">
+                                <span class="badge badge-admin">Admin</span>
+                                <span class="badge badge-pentest">Pentest</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Basic System Info</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">uname -a</div>
+                            <div class="explanation"><strong>Displays all system information</strong> - kernel version, architecture, hostname</div>
+                            <div class="tags">
+                                <span class="tag">kernel</span>
+                                <span class="tag">architecture</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">cat /etc/issue</div>
+                            <div class="explanation"><strong>Shows distribution name and version</strong> - login banner information</div>
+                            <div class="tags">
+                                <span class="tag">distribution</span>
+                                <span class="tag">version</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">cat /etc/*release*</div>
+                            <div class="explanation"><strong>Displays detailed distribution release information</strong> - more comprehensive than /etc/issue</div>
+                            <div class="tags">
+                                <span class="tag">distribution</span>
+                                <span class="tag">release</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">hostname</div>
+                            <div class="explanation"><strong>Shows the system's hostname</strong></div>
+                            <div class="tags">
+                                <span class="tag">hostname</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">hostnamectl</div>
+                            <div class="explanation"><strong>Systemd command for hostname control and information</strong> - shows additional system details</div>
+                            <div class="tags">
+                                <span class="tag">systemd</span>
+                                <span class="tag">hostname</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Environment & Kernel</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">env</div>
+                            <div class="explanation"><strong>Lists all environment variables</strong> - contains sensitive data like API keys, paths, and configurations</div>
+                            <div class="tags">
+                                <span class="tag">environment</span>
+                                <span class="tag">variables</span>
+                                <span class="tag">sensitive</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">printenv</div>
+                            <div class="explanation"><strong>Alternative to env</strong> for printing environment variables</div>
+                            <div class="tags">
+                                <span class="tag">environment</span>
+                                <span class="tag">variables</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">echo $PATH</div>
+                            <div class="explanation"><strong>Displays PATH variable</strong> - useful for privilege escalation via path hijacking attacks</div>
+                            <div class="tags">
+                                <span class="tag">PATH</span>
+                                <span class="tag">privilege-escalation</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hardware Enumeration -->
+                <section id="hardware" class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div>
+                            <h2 class="section-title">Hardware Enumeration</h2>
+                            <div class="badge-container">
+                                <span class="badge badge-admin">Admin</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">CPU & Memory</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">lscpu</div>
+                            <div class="explanation"><strong>Detailed CPU architecture information</strong> - shows CPU model, cores, architecture, and more</div>
+                            <div class="tags">
+                                <span class="tag">cpu</span>
+                                <span class="tag">architecture</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">lsmem</div>
+                            <div class="explanation"><strong>Memory information and statistics</strong> - shows memory blocks and availability</div>
+                            <div class="tags">
+                                <span class="tag">memory</span>
+                                <span class="tag">ram</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">free -h</div>
+                            <div class="explanation"><strong>Memory usage in human readable format</strong> - shows total, used, and free memory</div>
+                            <div class="tags">
+                                <span class="tag">memory</span>
+                                <span class="tag">monitoring</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Devices & Peripherals</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">lspci</div>
+                            <div class="explanation"><strong>List all PCI devices with details</strong> - shows graphics cards, network adapters, etc.</div>
+                            <div class="tags">
+                                <span class="tag">pci</span>
+                                <span class="tag">devices</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">lsusb</div>
+                            <div class="explanation"><strong>List USB devices and buses</strong> - shows connected USB devices</div>
+                            <div class="tags">
+                                <span class="tag">usb</span>
+                                <span class="tag">devices</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- User & Group Enumeration -->
+                <section id="user-group" class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h2 class="section-title">User & Group Enumeration</h2>
+                            <div class="badge-container">
+                                <span class="badge badge-pentest">Pentest</span>
+                                <span class="badge badge-ctf">CTF</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Current User Info</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">id</div>
+                            <div class="explanation"><strong>Shows current user's UID, GID, and group memberships</strong> - essential for understanding privileges</div>
+                            <div class="tags">
+                                <span class="tag">user</span>
+                                <span class="tag">privileges</span>
+                                <span class="tag">uid</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">sudo -l</div>
+                            <div class="explanation"><strong>Lists commands current user can run with sudo</strong> - common privilege escalation vector</div>
+                            <div class="tags">
+                                <span class="tag">sudo</span>
+                                <span class="tag">privilege-escalation</span>
+                                <span class="tag">critical</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">All Users</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">cat /etc/passwd</div>
+                            <div class="explanation"><strong>Lists all users on the system</strong> - with their home directories and default shells</div>
+                            <div class="tags">
+                                <span class="tag">users</span>
+                                <span class="tag">system</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">getent passwd</div>
+                            <div class="explanation"><strong>Alternative method using getent database</strong> - works with various name services</div>
+                            <div class="tags">
+                                <span class="tag">users</span>
+                                <span class="tag">database</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">ls -la /home/</div>
+                            <div class="explanation"><strong>Shows home directories and their permissions</strong> - useful for finding readable directories</div>
+                            <div class="tags">
+                                <span class="tag">home</span>
+                                <span class="tag">directories</span>
+                                <span class="tag">permissions</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Network Information -->
+                <section id="network" class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div>
+                            <h2 class="section-title">Network Information</h2>
+                            <div class="badge-container">
+                                <span class="badge badge-pentest">Pentest</span>
+                                <span class="badge badge-admin">Admin</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Network Configuration</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">ifconfig</div>
+                            <div class="explanation"><strong>Displays network interfaces, IP addresses, and MAC addresses</strong> - traditional command</div>
+                            <div class="tags">
+                                <span class="tag">network</span>
+                                <span class="tag">interfaces</span>
+                                <span class="tag">ip</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">ip addr</div>
+                            <div class="explanation"><strong>Modern alternative to ifconfig with more details</strong> - preferred on newer systems</div>
+                            <div class="tags">
+                                <span class="tag">network</span>
+                                <span class="tag">modern</span>
+                                <span class="tag">ip</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">netstat -tulpn</div>
+                            <div class="explanation"><strong>Shows listening ports and associated processes</strong> - TCP/UDP connections</div>
+                            <div class="tags">
+                                <span class="tag">ports</span>
+                                <span class="tag">listening</span>
+                                <span class="tag">processes</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">DNS & Routing</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">cat /etc/resolv.conf</div>
+                            <div class="explanation"><strong>Displays DNS servers configured for the system</strong></div>
+                            <div class="tags">
+                                <span class="tag">dns</span>
+                                <span class="tag">configuration</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">cat /etc/hosts</div>
+                            <div class="explanation"><strong>Shows local hostname to IP mappings</strong> - can be hijacked for redirection attacks</div>
+                            <div class="tags">
+                                <span class="tag">hosts</span>
+                                <span class="tag">dns</span>
+                                <span class="tag">hijacking</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">netstat -rn</div>
+                            <div class="explanation"><strong>Shows routing table</strong> - useful for network mapping and understanding network topology</div>
+                            <div class="tags">
+                                <span class="tag">routing</span>
+                                <span class="tag">network</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- File System Enumeration -->
+                <section id="filesystem" class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                        <div>
+                            <h2 class="section-title">File System Enumeration</h2>
+                            <div class="badge-container">
+                                <span class="badge badge-ctf">CTF</span>
+                                <span class="badge badge-pentest">Pentest</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Special Permission Files</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">find / -perm -u=s -type f 2>/dev/null</div>
+                            <div class="explanation"><strong>Finds SUID binaries</strong> - common privilege escalation vector (runs as owner)</div>
+                            <div class="tags">
+                                <span class="tag">suid</span>
+                                <span class="tag">privilege-escalation</span>
+                                <span class="tag">critical</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">find / -perm -g=s -type f 2>/dev/null</div>
+                            <div class="explanation"><strong>Finds SGID binaries</strong> - less common but similar to SUID (runs as group)</div>
+                            <div class="tags">
+                                <span class="tag">sgid</span>
+                                <span class="tag">privilege-escalation</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">find / -perm -o+w -type f 2>/dev/null</div>
+                            <div class="explanation"><strong>Finds world-writable files</strong> - potential for modification by any user</div>
+                            <div class="tags">
+                                <span class="tag">writable</span>
+                                <span class="tag">permissions</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">getcap -r / 2>/dev/null</div>
+                            <div class="explanation"><strong>Finds files with Linux capabilities</strong> - alternative to SUID for privilege escalation</div>
+                            <div class="tags">
+                                <span class="tag">capabilities</span>
+                                <span class="tag">privilege-escalation</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Mount Points & Disks</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">mount</div>
+                            <div class="explanation"><strong>Shows mounted filesystems and their permissions</strong></div>
+                            <div class="tags">
+                                <span class="tag">mount</span>
+                                <span class="tag">filesystem</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">df -h</div>
+                            <div class="explanation"><strong>Shows disk usage in human readable format</strong></div>
+                            <div class="tags">
+                                <span class="tag">disk</span>
+                                <span class="tag">storage</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Credentials & Secrets -->
+                <section id="credentials" class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div>
+                            <h2 class="section-title">Credentials & Secrets</h2>
+                            <div class="badge-container">
+                                <span class="badge badge-pentest">Pentest</span>
+                                <span class="badge badge-ctf">CTF</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">SSH Keys</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">find / -name "id_rsa" -o -name "id_dsa" -o -name "*.pem" 2>/dev/null</div>
+                            <div class="explanation"><strong>Searches for SSH private keys</strong> - common credential storage locations</div>
+                            <div class="tags">
+                                <span class="tag">ssh</span>
+                                <span class="tag">keys</span>
+                                <span class="tag">credentials</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">ls -la ~/.ssh/</div>
+                            <div class="explanation"><strong>Checks SSH directory for authorized keys and known hosts</strong></div>
+                            <div class="tags">
+                                <span class="tag">ssh</span>
+                                <span class="tag">directory</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Configuration Files</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">find / -name "*.conf" -o -name "*.cfg" | xargs grep -i "pass\|pwd" 2>/dev/null</div>
+                            <div class="explanation"><strong>Searches configuration files for password strings</strong> - finds hardcoded credentials</div>
+                            <div class="tags">
+                                <span class="tag">config</span>
+                                <span class="tag">passwords</span>
+                                <span class="tag">credentials</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">history</div>
+                            <div class="explanation"><strong>Displays command history</strong> - may contain passwords or sensitive operations</div>
+                            <div class="tags">
+                                <span class="tag">history</span>
+                                <span class="tag">sensitive</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Tips Section -->
+                <section id="quick-wins" class="quick-tips">
+                    <h3><i class="fas fa-bolt"></i> Quick Wins & Common Findings</h3>
+                    <p>These are the most common privilege escalation vectors and quick checks:</p>
+                    <div class="command-item">
+                        <div class="command">sudo -l</div>
+                        <div class="explanation">Always check sudo permissions first - this is the most common privilege escalation path.</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command">find / -perm -4000 2>/dev/null</div>
+                        <div class="explanation">SUID binaries are the second most common privilege escalation vector.</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command">cat /etc/crontab</div>
+                        <div class="explanation">Cron jobs running as root that you can influence are a common vector.</div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command">getcap -r / 2>/dev/null</div>
+                        <div class="explanation">Capabilities are becoming more common than SUID in modern systems.</div>
+                    </div>
+                </section>
+
+                <!-- One-Liners -->
+                <section id="one-liners" class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div>
+                            <h2 class="section-title">Essential One-Liners</h2>
+                            <div class="badge-container">
+                                <span class="badge badge-ctf">CTF</span>
+                                <span class="badge badge-pentest">Pentest</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Quick Enumeration</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">echo "=== SYSTEM ==="; uname -a; echo "=== USERS ==="; cat /etc/passwd; echo "=== SUDO ==="; sudo -l; echo "=== PROCESSES ==="; ps aux; echo "=== NETWORK ==="; ifconfig; netstat -tulpn</div>
+                            <div class="explanation"><strong>Basic enumeration one-liner</strong> - quick assessment of system state</div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">for i in $(ls /home/); do echo "=== $i ==="; sudo -l -U $i; done 2>/dev/null</div>
+                            <div class="explanation"><strong>Check sudo privileges for all users</strong> - finds users with sudo access</div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                        
+                        <div class="command-item">
+                            <div class="command">find / -type f -name "*.txt" -o -name "*.conf" -o -name "*.sh" -o -name "*.py" 2>/dev/null | head -50</div>
+                            <div class="explanation"><strong>Find interesting files quickly</strong> - common file types that may contain useful information</div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="command-group">
+                        <h3 class="group-title">Pro Tips</h3>
+                        
+                        <div class="command-item">
+                            <div class="command">2>/dev/null</div>
+                            <div class="explanation"><strong>Append this to commands</strong> to suppress permission denied errors and clean up output</div>
+                            <button class="copy-btn" onclick="copyCommand(this)">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer Note -->
+                <div id="tips" class="quick-tips">
+                    <h3><i class="fas fa-lightbulb"></i> Professional Tips</h3>
+                    <p><strong>Remember:</strong> Always ensure you have proper authorization before running enumeration commands on systems you don't own. This cheatsheet is for educational purposes and authorized penetration testing only.</p>
+                    <p><strong>Methodology:</strong> Start with automated tools (LinPEAS/LinEnum), then manually verify findings. Always document your process and findings.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Enumeration Categories</h3>
+                    <ul>
+                        <li><a href="#system-info">System Information</a></li>
+                        <li><a href="#user-group">User & Group</a></li>
+                        <li><a href="#network">Network</a></li>
+                        <li><a href="#filesystem">File System</a></li>
+                        <li><a href="#privilege">Privilege Escalation</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Quick Resources</h3>
+                    <ul>
+                        <li><a href="#quick-wins">Quick Wins</a></li>
+                        <li><a href="#one-liners">One-Liners</a></li>
+                        <li><a href="#credentials">Credentials</a></li>
+                        <li><a href="#containers">Containers</a></li>
+                        <li><a href="#automated">Automated Tools</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>About</h3>
+                    <p>This comprehensive Linux enumeration reference is designed for security professionals, CTF players, and system administrators. Always use ethically and with proper authorization.</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>Linux Enumeration Cheatsheet | Version 2.0 | For educational and authorized penetration testing only</p>
+                <p>© 2024 Security Reference Guide. All commands tested on Linux systems.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Copy command to clipboard
+        function copyCommand(button) {
+            const command = button.parentElement.querySelector('.command').textContent;
+            navigator.clipboard.writeText(command).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (searchTerm.length < 2) {
+                resultsContainer.style.display = 'none';
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            
+            const allCommands = document.querySelectorAll('.command-item');
+            let resultsHTML = '';
+            let resultCount = 0;
+            
+            allCommands.forEach(item => {
+                const command = item.querySelector('.command').textContent.toLowerCase();
+                const explanation = item.querySelector('.explanation').textContent.toLowerCase();
+                
+                if (command.includes(searchTerm) || explanation.includes(searchTerm)) {
+                    resultCount++;
+                    resultsHTML += `
+                        <div class="command-item" style="margin: 10px 0; padding: 10px;">
+                            <div class="command">${item.querySelector('.command').textContent}</div>
+                            <div class="explanation">${item.querySelector('.explanation').textContent}</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (resultCount > 0) {
+                resultsContainer.innerHTML = `<h4>Found ${resultCount} results:</h4>${resultsHTML}`;
+                resultsContainer.style.display = 'block';
+            } else {
+                resultsContainer.innerHTML = '<p>No commands found matching your search.</p>';
+                resultsContainer.style.display = 'block';
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in TOC
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.section-card');
+            const scrollPos = window.scrollY + 100;
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                const sectionId = section.getAttribute('id');
+                
+                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                    document.querySelectorAll('.toc a').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add active class to first TOC item
+            const firstTocLink = document.querySelector('.toc a');
+            if (firstTocLink) {
+                firstTocLink.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
